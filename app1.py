@@ -82,64 +82,78 @@ with col2:
     fig2.update_layout(height=400, title_x=0.5)
     st.plotly_chart(fig2, use_container_width=True)
 
+# --- Viloyatlar bo‘yicha tekshiruvlar soni ---
+st.subheader("Viloyatlar bo‘yicha tekshiruvlar soni")
+region_counts = filtered_tekshiruvlar["Viloyat"].value_counts().reset_index()
+region_counts.columns = ["Viloyat", "Tekshiruvlar_soni"]
+
+fig_region = px.bar(
+    region_counts,
+    x="Viloyat",
+    y="Tekshiruvlar_soni",
+    text_auto=True,
+    color="Tekshiruvlar_soni",
+    title="Viloyatlar kesimida tekshiruvlar statistikasi"
+)
+fig_region.update_layout(height=400, title_x=0.5)
+st.plotly_chart(fig_region, use_container_width=True)
+
+
 # --- Mezonlar ---
 st.subheader("Mezonlar holati")
-if 'Holat' in mezonlar.columns:
-    mezonlar_counts = mezonlar["Holat"].value_counts().reset_index(name="Soni")
-    mezonlar_counts.columns = ["Holat", "Soni"]
+mezonlar_counts = mezonlar["Holat"].value_counts().reset_index(name="Soni")
+mezonlar_counts.columns = ["Holat", "Soni"]
 
-    fig3 = px.bar(
-        mezonlar_counts,
-        x="Holat",
-        y="Soni",
-        labels={"Holat": "Holat", "Soni": "Soni"},
-        title="Mezonlar holati soni",
-        text_auto=True,
-        color="Holat",
-    )
-    fig3.update_layout(height=400, title_x=0.5)
-    st.plotly_chart(fig3, use_container_width=True)
+fig3 = px.bar(
+    mezonlar_counts,
+    x="Holat",
+    y="Soni",
+    labels={"Holat": "Holat", "Soni": "Soni"},
+    title="Mezonlar holati soni",
+    text_auto=True,
+    color="Holat",
+)
+fig3.update_layout(height=400, title_x=0.5)
+st.plotly_chart(fig3, use_container_width=True)
 
 # --- Tadbirkorlar ---
 st.subheader("Tadbirkorlar xavf darajasi")
-if 'Xavf_darajasi' in tadbirkorlar.columns:
-    tadbirkorlar_count = tadbirkorlar["Xavf_darajasi"].value_counts().reset_index(name='count')
-    tadbirkorlar_count.columns = ['Xavf_darajasi', 'count']
+tadbirkorlar_count = tadbirkorlar["Xavf_darajasi"].value_counts().reset_index(name='count')
+tadbirkorlar_count.columns = ['Xavf_darajasi', 'count']
 
-    fig4 = px.bar(
-        tadbirkorlar_count,
-        x='Xavf_darajasi',
-        y='count',
-        labels={'Xavf_darajasi': 'Xavf darajasi', 'count': 'Tadbirkorlar soni'},
-        color='Xavf_darajasi',
-        text_auto=True,
-        title="Tadbirkorlar xavf darajasi bo'yicha taqsimoti",
-    )
-    fig4.update_layout(height=400, title_x=0.5)
-    st.plotly_chart(fig4, use_container_width=True)
+fig4 = px.bar(
+    tadbirkorlar_count,
+    x='Xavf_darajasi',
+    y='count',
+    labels={'Xavf_darajasi': 'Xavf darajasi', 'count': 'Tadbirkorlar soni'},
+    color='Xavf_darajasi',
+    text_auto=True,
+    title="Tadbirkorlar xavf darajasi bo'yicha taqsimoti",
+)
+fig4.update_layout(height=400, title_x=0.5)
+st.plotly_chart(fig4, use_container_width=True)
 
 # --- Optional: Map Visualization ---
 if st.checkbox("Ko'rsatish: Tekshiruvlar xaritada"):
-    if 'Latitude' in tekshiruvlar.columns and 'Longitude' in tekshiruvlar.columns:
-        geo_df = tekshiruvlar.dropna(subset=['Latitude', 'Longitude'])
-        st.pydeck_chart(pdk.Deck(
-            map_style='mapbox://styles/mapbox/light-v9',
-            initial_view_state=pdk.ViewState(
-                latitude=geo_df["Latitude"].mean(),
-                longitude=geo_df["Longitude"].mean(),
-                zoom=6,
-                pitch=0,
+    geo_df = tekshiruvlar.dropna(subset=['Latitude', 'Longitude'])
+    st.pydeck_chart(pdk.Deck(
+        map_style='mapbox://styles/mapbox/light-v9',
+        initial_view_state=pdk.ViewState(
+            latitude=geo_df["Latitude"].mean(),
+            longitude=geo_df["Longitude"].mean(),
+            zoom=6,
+            pitch=0,
+        ),
+        layers=[
+            pdk.Layer(
+                "ScatterplotLayer",
+                data=geo_df,
+                get_position='[Longitude, Latitude]',
+                get_color='[200, 30, 0, 160]',
+                get_radius=5000,
             ),
-            layers=[
-                pdk.Layer(
-                    "ScatterplotLayer",
-                    data=geo_df,
-                    get_position='[Longitude, Latitude]',
-                    get_color='[200, 30, 0, 160]',
-                    get_radius=5000,
-                ),
-            ],
-        ))
+        ],
+    ))
 
 # --- Future scoring AI section placeholder ---
 st.markdown("---")
